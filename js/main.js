@@ -1,4 +1,5 @@
 import { initEventListeners, refreshWatchlistUI } from './modules/events.js';
+import { initLayout } from './modules/layout.js';
 
 /**
  * The main entry point for the application.
@@ -6,8 +7,8 @@ import { initEventListeners, refreshWatchlistUI } from './modules/events.js';
  */
 function main() {
     initEventListeners();
+    initLayout();
     refreshWatchlistUI();
-    console.log("CineStream App Initialized Successfully.");
 }
 
 // Initialize the app
