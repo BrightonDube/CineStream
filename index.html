@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineStream - Find Where to Watch Movies & Shows</title>
+    <meta name="description"
+        content="Search for any movie or TV show and instantly find out which streaming services have it available in your region.">
+
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- External JavaScript with defer attribute in the head -->
+    <script src="js/main.js" type="module" defer></script>
+</head>
+
+<body>
+    <header>
+        <h1>CineStream</h1>
+        <p>Find where your favorite movies are streaming.</p>
+    </header>
+
+    <main>
+        <section id="search-section" aria-labelledby="search-heading">
+            <h2 id="search-heading" class="sr-only">Movie Search</h2>
+            <form id="search-form" role="search">
+                <label for="search-input" class="sr-only">Search for a movie or TV show</label>
+                <input type="text" id="search-input" placeholder="e.g., Inception, The Bear..." required
+                    aria-label="Movie or TV show title">
+                <button type="submit">Search</button>
+            </form>
+        </section>
+
+        <section id="results-section" aria-live="polite">
+            <div id="loader" class="loader hidden"></div>
+            <div id="results-container">
+                <!-- Movie cards are dynamically rendered here -->
+            </div>
+        </section>
+
+        <section id="watchlist-section" aria-labelledby="watchlist-heading">
+            <h2 id="watchlist-heading">My Watchlist</h2>
+            <div id="watchlist-container">
+                <!-- Watchlist items are dynamically rendered here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Powered by <a href="https://www.omdbapi.com/" target="_blank" rel="noopener noreferrer">OMDb API</a> and <a
+                href="https://api.watchmode.com/" target="_blank" rel="noopener noreferrer">Watchmode API</a>.</p>
+    </footer>
+</body>
+
+</html>
