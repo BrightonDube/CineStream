@@ -1,6 +1,6 @@
 // IMPORTANT: Replace placeholders with your actual API keys
 const OMDb_API_KEY = 'b02ef26f';
-const WATCHMODE_API_KEY = ''; // Add your Watchmode API key here
+const WATCHMODE_API_KEY = '5QUiaWeDU2cPgQs6LF7S8uSmYkSaHvhPCeoGoebi'; // Add your Watchmode API key here
 
 /**
  * Searches the OMDb API for movies. NOW WITH FILTERS.

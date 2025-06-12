@@ -95,6 +95,12 @@ async function handleSurprise() {
     } else {
         resultsContainer.innerHTML += '<p>Could not find a surprise movie. Please try again!</p>';
     }
+
+    // Scroll to the results section
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 /**
