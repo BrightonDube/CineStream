@@ -3,15 +3,25 @@ const OMDb_API_KEY = 'YOUR_OMDB_API_KEY_HERE';
 const WATCHMODE_API_KEY = 'YOUR_WATCHMODE_API_KEY_HERE';
 
 /**
- * Searches the OMDb API for movies.
+ * Searches the OMDb API for movies. NOW WITH FILTERS.
  * @param {string} searchTerm - The title of the movie to search for.
- * @returns {Promise<Array|null>} A promise that resolves to an array of movie results or null on error/no results.
+ * @param {string} type - The type to filter by (e.g., 'movie', 'series').
+ * @param {string} year - The year to filter by.
+ * @returns {Promise<Array|null>} A promise that resolves to an array of movie results or null.
  */
-async function searchOMDb(searchTerm) {
-    const url = `https://www.omdbapi.com/?s=${encodeURIComponent(searchTerm)}&type=movie&apikey=${OMDb_API_KEY}`;
+async function searchOMDb(searchTerm, type = '', year = '') {
+    // MODIFIED: Append type and year to the URL if they exist
+    let url = `https://www.omdbapi.com/?s=${encodeURIComponent(searchTerm)}&apikey=${OMDb_API_KEY}`;
+    if (type) {
+        url += `&type=${type}`;
+    }
+    if (year) {
+        url += `&y=${year}`;
+    }
+
     try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`OMDb API request failed with status: ${response.status}`);
+        if (!response.ok) throw new Error(`OMDb API request failed: ${response.status}`);
         const data = await response.json();
         return data.Response === "True" ? data.Search : null;
     } catch (error) {
@@ -43,4 +53,22 @@ async function getStreamingSources(imdbId) {
     }
 }
 
-export { searchOMDb, getStreamingSources }; 
+/**
+ * Get a single, detailed movie result by its ID.
+ * @param {string} imdbId - The IMDb ID of the movie.
+ * @returns {Promise<object|null>} A promise resolving to the detailed movie object.
+ */
+async function getMovieById(imdbId) {
+    const url = `https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDb_API_KEY}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`OMDb API by ID request failed: ${response.status}`);
+        const data = await response.json();
+        return data.Response === "True" ? data : null;
+    } catch (error) {
+        console.error("Error fetching movie by ID:", error);
+        return null;
+    }
+}
+
+export { searchOMDb, getStreamingSources, getMovieById }; 

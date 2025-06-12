@@ -1,4 +1,4 @@
-import { initEventListeners, refreshWatchlistUI } from './modules/events.js';
+import { initEventListeners, refreshWatchlistUI, loadFeaturedMovies } from './modules/events.js';
 import { initLayout } from './modules/layout.js';
 
 /**
@@ -7,8 +7,9 @@ import { initLayout } from './modules/layout.js';
  */
 function main() {
     initEventListeners();
-    initLayout();
     refreshWatchlistUI();
+    loadFeaturedMovies();
+    initLayout();
 }
 
 // Initialize the app

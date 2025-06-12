@@ -3,34 +3,55 @@ import { getStreamingSources } from './api.js';
 const resultsContainer = document.getElementById('results-container');
 const watchlistContainer = document.getElementById('watchlist-container');
 const loader = document.getElementById('loader');
+const featuredContainer = document.getElementById('featured-container');
 
 /**
- * Creates a movie card element from a movie object.
- * @param {object} movie - A movie data object (must contain imdbID, Title, Year, Poster).
- * @param {boolean} isInWatchlist - Indicates if the card is for the watchlist (changes button text).
- * @returns {HTMLElement} The created movie card element.
+ * Creates a movie card element with lazy loading for the poster.
+ * @param {Object} movie - The movie data object.
+ * @returns {HTMLElement} The movie card element.
  */
-function createMovieCard(movie, isInWatchlist = false) {
-    const movieCard = document.createElement('div');
-    movieCard.className = 'movie-card';
-    movieCard.dataset.imdbId = movie.imdbID;
-    movieCard.dataset.title = movie.Title;
-    movieCard.dataset.year = movie.Year;
-    movieCard.dataset.poster = movie.Poster;
+function createMovieCard(movie) {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    card.setAttribute('data-imdb-id', movie.imdbID);
 
-    const buttonText = isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist';
-    const buttonClass = isInWatchlist ? 'remove-from-watchlist-btn' : 'add-to-watchlist-btn';
-
-    movieCard.innerHTML = `
-        <img src="${movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450.png?text=No+Image+Available'}" alt="Poster for ${movie.Title}">
+    const posterUrl = movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster';
+    
+    card.innerHTML = `
+        <div class="movie-poster">
+            <img class="lazy-image" 
+                 data-src="${posterUrl}" 
+                 alt="${movie.Title} poster"
+                 loading="lazy">
+        </div>
         <div class="movie-info">
             <h3>${movie.Title}</h3>
             <p>${movie.Year}</p>
-            <div class="streaming-sources" id="sources-${movie.imdbID}"><p>Loading sources...</p></div>
-            <button class="${buttonClass} action-btn" aria-label="${buttonText}">${buttonText}</button>
+            <p>${movie.Type}</p>
         </div>
     `;
-    return movieCard;
+
+    // Initialize lazy loading
+    const img = card.querySelector('img');
+    if ('loading' in HTMLImageElement.prototype) {
+        img.src = img.dataset.src;
+        img.classList.add('loaded');
+    } else {
+        // Fallback for browsers that don't support native lazy loading
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.add('loaded');
+                    observer.unobserve(img);
+                }
+            });
+        });
+        observer.observe(img);
+    }
+
+    return card;
 }
 
 /**
@@ -52,22 +73,21 @@ function updateCardWithSources(imdbId, sources) {
 }
 
 /**
- * Renders an array of movies to the specified container.
- * @param {Array} movies - An array of movie objects.
- * @param {HTMLElement} container - The DOM element to render into.
- * @param {boolean} isWatchlist - Flag to determine button text/class.
+ * Renders an array of movies in the specified container.
+ * @param {Array} movies - Array of movie objects to render.
+ * @param {HTMLElement} container - The container element to render movies in.
+ * @param {boolean} isWatchlist - Whether this is the watchlist container.
  */
 function renderMovies(movies, container, isWatchlist = false) {
-    container.innerHTML = '';
     if (!movies || movies.length === 0) {
-        const message = isWatchlist ? 'Your watchlist is empty.' : 'No movies found.';
-        container.innerHTML = `<p>${message}</p>`;
+        container.innerHTML = '<p class="no-results">No movies found.</p>';
         return;
     }
+
+    container.innerHTML = '';
     movies.forEach(movie => {
-        const movieCard = createMovieCard(movie, isWatchlist);
-        container.appendChild(movieCard);
-        getStreamingSources(movie.imdbID).then(sources => updateCardWithSources(movie.imdbID, sources));
+        const card = createMovieCard(movie);
+        container.appendChild(card);
     });
 }
 
@@ -79,4 +99,4 @@ function toggleLoader(isVisible) {
     loader.classList.toggle('hidden', !isVisible);
 }
 
-export { renderMovies, toggleLoader, resultsContainer, watchlistContainer }; 
+export { renderMovies, toggleLoader, resultsContainer, watchlistContainer, featuredContainer }; 
