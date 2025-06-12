@@ -1,0 +1,183 @@
+:root {
+    /* High-contrast, accessible color palette */
+    --background-color: #0F172A; /* Dark Slate Blue */
+    --surface-color: #1E293B;    /* Lighter Slate Blue */
+    --text-color: #F1F5F9;       /* Light Grey (near white) */
+    --primary-color: #FF9F1C;    /* Amber/Orange */
+    --text-on-primary: #0F172A; /* Dark text for high contrast on primary buttons */
+    --border-color: #334155;     /* Mid-range Slate */
+}
+
+/* Basic Setup & Accessibility */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 1rem;
+    line-height: 1.6;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Header & Footer */
+header, footer {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Search Form */
+#search-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+#search-input {
+    width: 60%;
+    max-width: 500px;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    border-radius: 5px 0 0 5px;
+}
+
+#search-form button {
+    padding: 12px 24px;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 0 5px 5px 0;
+    transition: filter 0.2s;
+}
+
+#search-form button:hover {
+    filter: brightness(1.1);
+}
+
+/* Results & Watchlist Grid */
+#results-container, #watchlist-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Movie Card */
+.movie-card {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.movie-card img {
+    width: 100%;
+    height: 375px;
+    object-fit: cover;
+    background-color: #000;
+}
+
+.movie-info {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.movie-info h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.movie-info p {
+    margin: 4px 0;
+    color: #cbd5e1;
+}
+
+.streaming-sources {
+    margin-top: 1rem;
+    flex-grow: 1;
+}
+
+.streaming-sources a {
+    display: inline-block;
+    margin: 4px;
+    padding: 5px 10px;
+    background-color: var(--border-color);
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.action-btn {
+    align-self: flex-start;
+    margin-top: 1rem;
+    padding: 8px 12px;
+    background-color: #475569;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.action-btn:hover {
+    background-color: #64748B;
+}
+
+/* Loader Animation */
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    margin: 2rem auto;
+    animation: spin 1s linear infinite;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Fade-In Animation */
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+} 
