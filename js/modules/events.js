@@ -65,18 +65,30 @@ async function handleSearch(event) {
     
     toggleLoader(false);
     renderMovies(movies, resultsContainer, false);
+
+    // Scroll to the results section
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 /**
  * Handles the "Surprise Me" button click.
+ * Picks a random movie from the list and ensures a valid result.
  */
 async function handleSurprise() {
     toggleLoader(true);
     resultsContainer.innerHTML = '<h2>Your Surprise Movie</h2>';
 
-    const randomId = surpriseMovieIds[Math.floor(Math.random() * surpriseMovieIds.length)];
-    const movie = await getMovieById(randomId);
-    
+    // Shuffle the surpriseMovieIds array
+    const shuffled = [...surpriseMovieIds].sort(() => 0.5 - Math.random());
+    let movie = null;
+    for (let i = 0; i < shuffled.length; i++) {
+        movie = await getMovieById(shuffled[i]);
+        if (movie) break;
+    }
+
     toggleLoader(false);
     if (movie) {
         renderMovies([movie], resultsContainer, false);
@@ -214,7 +226,18 @@ async function showMovieDetails(imdbId) {
 
     // Update watchlist button
     const isInWatchlist = getWatchlist().some(m => m.imdbID === imdbId);
-    watchlistBtn.textContent = isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist';
+    if (isInWatchlist) {
+        watchlistBtn.textContent = '';
+        watchlistBtn.className = 'remove-from-watchlist-btn';
+        const icon = document.createElement('span');
+        icon.className = 'icon-trash';
+        icon.innerHTML = '🗑️';
+        watchlistBtn.appendChild(icon);
+        watchlistBtn.appendChild(document.createTextNode('Remove from Watchlist'));
+    } else {
+        watchlistBtn.textContent = 'Add to Watchlist';
+        watchlistBtn.className = 'add-to-watchlist-btn';
+    }
     watchlistBtn.onclick = () => {
         if (isInWatchlist) {
             removeMovieFromWatchlist(imdbId);
@@ -288,6 +311,7 @@ function initEventListeners() {
     contactForm.addEventListener('submit', handleContactSubmit);
     resultsContainer.addEventListener('click', handleContainerClick);
     watchlistContainer.addEventListener('click', handleContainerClick);
+    featuredContainer.addEventListener('click', handleContainerClick);
     
     // Add navigation event listeners
     navLinks.forEach(link => {

@@ -914,6 +914,41 @@ section:first-of-type {
 .movie-modal-actions {
     margin-top: auto;
     padding-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Remove from Watchlist Button Styles */
+.remove-from-watchlist-btn {
+    background-color: #ef4444; /* Tailwind Red-500 */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.08);
+}
+
+.remove-from-watchlist-btn:hover {
+    background-color: #b91c1c; /* Tailwind Red-700 */
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.remove-from-watchlist-btn .icon-trash {
+    font-size: 1.1em;
+    margin-right: 0.25em;
+    pointer-events: none;
+}
+
+/* Add a transition for icon color on hover */
+.remove-from-watchlist-btn:hover .icon-trash {
+    color: #fff;
 }
 
 /* Responsive Design for Modals */
