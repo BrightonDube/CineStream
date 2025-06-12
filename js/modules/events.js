@@ -7,6 +7,9 @@ const searchForm = document.getElementById('search-form');
 const surpriseBtn = document.getElementById('surprise-btn');
 const contactForm = document.getElementById('contact-form');
 const navLinks = document.querySelectorAll('.nav-link');
+const contactModal = document.getElementById('contact-modal');
+const movieModal = document.getElementById('movie-modal');
+const modalOverlay = document.querySelector('.modal-overlay');
 
 // A pre-defined list of high-quality movie IMDb IDs for new features
 const featuredMovieIds = ['tt0111161', 'tt0068646', 'tt0468569', 'tt0108052', 'tt1375666', 'tt0137523'];
@@ -83,19 +86,62 @@ async function handleSurprise() {
 }
 
 /**
- * Loads and displays featured movies on page startup.
+ * Loads and displays featured movies.
  */
 async function loadFeaturedMovies() {
-    featuredContainer.innerHTML = '<div class="loader"></div>';
-    
-    const moviePromises = featuredMovieIds.map(id => getMovieById(id));
-    const movies = await Promise.all(moviePromises);
-    
-    renderMovies(movies.filter(movie => movie), featuredContainer, false);
+    const featuredContainer = document.getElementById('featured-container');
+    if (!featuredContainer) return;
+
+    try {
+        toggleLoader(true);
+        const movies = await Promise.all(
+            featuredMovieIds.map(id => getMovieById(id))
+        );
+        
+        const validMovies = movies.filter(movie => movie !== null);
+        if (validMovies.length > 0) {
+            renderMovies(validMovies, featuredContainer);
+        } else {
+            featuredContainer.innerHTML = '<p>No featured movies available at the moment.</p>';
+        }
+    } catch (error) {
+        console.error('Error loading featured movies:', error);
+        featuredContainer.innerHTML = '<p>Error loading featured movies. Please try again later.</p>';
+    } finally {
+        toggleLoader(false);
+    }
 }
 
 /**
- * Handles the contact form submission with validation.
+ * Refreshes the watchlist UI with current data.
+ */
+function refreshWatchlistUI() {
+    const watchlist = getWatchlist();
+    renderMovies(watchlist, watchlistContainer, true);
+}
+
+/**
+ * Shows a modal by adding the 'active' class.
+ * @param {HTMLElement} modal - The modal element to show.
+ */
+function showModal(modal) {
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Hides a modal by removing the 'active' class.
+ * @param {HTMLElement} modal - The modal element to hide.
+ */
+function hideModal(modal) {
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+/**
+ * Handles the contact form submission with validation and modal.
  * @param {Event} event - The form submission event.
  */
 function handleContactSubmit(event) {
@@ -112,9 +158,79 @@ function handleContactSubmit(event) {
     }
 
     // Here you would typically send the sanitized data to a server
-    // For now, we'll just show a success message
-    alert('Thank you for your message! We will get back to you soon.');
+    showModal(contactModal);
     event.target.reset();
+}
+
+/**
+ * Shows movie details in a modal.
+ * @param {string} imdbId - The IMDb ID of the movie.
+ */
+async function showMovieDetails(imdbId) {
+    toggleLoader(true);
+    const movie = await getMovieById(imdbId);
+    const sources = await getStreamingSources(imdbId);
+    toggleLoader(false);
+
+    if (!movie) {
+        alert('Could not load movie details. Please try again.');
+        return;
+    }
+
+    // Update modal content
+    const modalTitle = movieModal.querySelector('#movie-modal-title');
+    const modalImg = movieModal.querySelector('.movie-modal-img');
+    const yearEl = movieModal.querySelector('.movie-year');
+    const ratingEl = movieModal.querySelector('.movie-rating');
+    const runtimeEl = movieModal.querySelector('.movie-runtime');
+    const genreEl = movieModal.querySelector('.movie-genre');
+    const plotEl = movieModal.querySelector('.movie-plot');
+    const sourcesEl = movieModal.querySelector('.streaming-sources');
+    const watchlistBtn = movieModal.querySelector('.add-to-watchlist-btn');
+
+    modalTitle.textContent = movie.Title;
+    modalImg.src = movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster';
+    modalImg.alt = `Poster for ${movie.Title}`;
+    yearEl.textContent = `Year: ${movie.Year}`;
+    ratingEl.textContent = `IMDb Rating: ${movie.imdbRating || 'N/A'}`;
+    runtimeEl.textContent = `Runtime: ${movie.Runtime || 'N/A'}`;
+    genreEl.textContent = `Genre: ${movie.Genre || 'N/A'}`;
+    plotEl.textContent = movie.Plot || 'No plot available.';
+
+    // Update streaming sources
+    sourcesEl.innerHTML = '';
+    if (sources && sources.length > 0) {
+        sources.forEach(source => {
+            const link = document.createElement('a');
+            link.href = source.web_url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = source.name;
+            sourcesEl.appendChild(link);
+        });
+    } else {
+        sourcesEl.innerHTML = '<p>No streaming sources found.</p>';
+    }
+
+    // Update watchlist button
+    const isInWatchlist = getWatchlist().some(m => m.imdbID === imdbId);
+    watchlistBtn.textContent = isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist';
+    watchlistBtn.onclick = () => {
+        if (isInWatchlist) {
+            removeMovieFromWatchlist(imdbId);
+        } else {
+            addMovieToWatchlist({
+                imdbID: imdbId,
+                Title: movie.Title,
+                Year: movie.Year,
+                Poster: movie.Poster
+            });
+        }
+        refreshWatchlistUI();
+        hideModal(movieModal);
+    };
+
+    showModal(movieModal);
 }
 
 /**
@@ -128,29 +244,7 @@ function handleContainerClick(event) {
     const imdbId = card.dataset.imdbId;
     if (!imdbId) return;
 
-    const isInWatchlist = getWatchlist().some(movie => movie.imdbID === imdbId);
-    
-    if (isInWatchlist) {
-        removeMovieFromWatchlist(imdbId);
-    } else {
-        const movie = {
-            imdbID: imdbId,
-            Title: card.querySelector('h3').textContent,
-            Year: card.querySelector('p').textContent,
-            Poster: card.querySelector('img').src
-        };
-        addMovieToWatchlist(movie);
-    }
-    
-    refreshWatchlistUI();
-}
-
-/**
- * Refreshes the watchlist UI with current watchlist data.
- */
-function refreshWatchlistUI() {
-    const watchlist = getWatchlist();
-    renderMovies(watchlist, watchlistContainer, true);
+    showMovieDetails(imdbId);
 }
 
 /**
@@ -198,6 +292,30 @@ function initEventListeners() {
     // Add navigation event listeners
     navLinks.forEach(link => {
         link.addEventListener('click', handleNavigation);
+    });
+
+    // Modal close buttons
+    document.querySelectorAll('.modal-close, .modal-ok-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal');
+            hideModal(modal);
+        });
+    });
+
+    // Close modal when clicking overlay
+    modalOverlay.addEventListener('click', () => {
+        document.querySelectorAll('.modal.active').forEach(modal => {
+            hideModal(modal);
+        });
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            document.querySelectorAll('.modal.active').forEach(modal => {
+                hideModal(modal);
+            });
+        }
     });
 }
 

@@ -92,11 +92,15 @@ function renderMovies(movies, container, isWatchlist = false) {
 }
 
 /**
- * Toggles the visibility of the loading spinner.
- * @param {boolean} isVisible - If true, the loader is shown.
+ * Toggles the visibility of the loader element.
+ * @param {boolean} show - Whether to show or hide the loader.
  */
-function toggleLoader(isVisible) {
-    loader.classList.toggle('hidden', !isVisible);
+function toggleLoader(show) {
+    if (show) {
+        loader.classList.remove('hidden');
+    } else {
+        loader.classList.add('hidden');
+    }
 }
 
 export { renderMovies, toggleLoader, resultsContainer, watchlistContainer, featuredContainer }; 

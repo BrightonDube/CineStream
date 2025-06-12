@@ -12,5 +12,5 @@ function main() {
     initLayout();
 }
 
-// Initialize the app
-main(); 
+// Initialize the app when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', main); 
