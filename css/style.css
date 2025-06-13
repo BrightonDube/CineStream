@@ -1006,45 +1006,142 @@ section:first-of-type {
     color: #fff;
 }
 
-/* Hero Section Styles */
+/* HERO SECTION STYLES */
 .hero {
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    color: #fff;
-    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #1b365d 0%, #003b49 100%);
+    color: var(--text-color);
+    padding: 4.5rem 2rem 3.5rem 2rem;
     text-align: center;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 1.5rem;
+    margin: 2.5rem auto 3.5rem auto;
+    max-width: 900px;
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.18);
+    position: relative;
+    overflow: hidden;
 }
-
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, #ffc84533 0%, transparent 80%);
+    z-index: 0;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, #ffc84522 0%, transparent 80%);
+    z-index: 0;
+}
 .hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: bold;
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1px;
+    z-index: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
-
-.hero p {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
+.hero-subheading {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 2.2rem;
+    opacity: 0.95;
+    z-index: 1;
+    position: relative;
 }
-
-.hero .cta-button {
-    background-color: #10b981; /* Tailwind Green-500 */
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 12px 24px;
+.hero-search {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(27,54,93,0.85);
+    border-radius: 0.75rem;
+    padding: 1.2rem 1rem 1.2rem 1rem;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+    z-index: 1;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+.hero-search input,
+.hero-search select {
     font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+    padding: 0.85rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    color: var(--text-color);
+    margin-right: 0.25rem;
+    margin-bottom: 0.5rem;
 }
-
-.hero .cta-button:hover {
-    background-color: #059669; /* Tailwind Green-600 */
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+.hero-search button[type="submit"] {
+    background: var(--primary-accent-color);
+    color: var(--text-on-accent);
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    cursor: pointer;
+    transition: filter 0.2s, box-shadow 0.2s;
+    margin-bottom: 0.5rem;
+}
+.hero-search button[type="submit"]:hover {
+    filter: brightness(1.08);
+    box-shadow: 0 2px 8px 0 #ffc84544;
+}
+.hero-surprise {
+    margin-top: 1.2rem;
+    z-index: 1;
+    position: relative;
+}
+.hero-surprise .action-btn {
+    font-size: 1.15rem;
+    padding: 0.9rem 2.2rem;
+    border-radius: 0.5rem;
+    background: var(--primary-accent-color);
+    color: var(--text-on-accent);
+    font-weight: bold;
+    box-shadow: 0 2px 8px 0 #ffc84533;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.hero-surprise .action-btn:hover {
+    background: #ffd770;
+    color: var(--text-on-accent);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px 0 #ffc84555;
+}
+@media (max-width: 700px) {
+    .hero {
+        padding: 2.5rem 1rem 2.5rem 1rem;
+        max-width: 98vw;
+    }
+    .hero h1 {
+        font-size: 2rem;
+    }
+    .hero-subheading {
+        font-size: 1.05rem;
+    }
+    .hero-search {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem 0.5rem;
+    }
+    .hero-search input,
+    .hero-search select,
+    .hero-search button[type="submit"] {
+        width: 100%;
+        margin-right: 0;
+    }
+    .hero-surprise .action-btn {
+        width: 100%;
+        padding: 0.9rem 0;
+    }
 }
 
 /* Genre Discovery Section */

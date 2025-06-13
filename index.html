@@ -47,26 +47,18 @@
         </div>
     </nav>
 
-    <header>
-        <h1>
-            <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                    d="M18 3l-3 3V3H6C4.34 3 3 4.34 3 6v12c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3zm-1 12h-4v4h-2v-4H7v-2h4V9h2v4h4v2z" />
-            </svg>
-            CineStream
-        </h1>
-
-    </header>
-
     <main>
-        <section id="search-section" aria-labelledby="search-heading">
-            <h2 class="centered-headline">Find where your favorite movies are streaming.</h2>
-            <h2 id="search-heading" class="sr-only">Movie Search and Discovery</h2>
-            <form id="search-form" role="search">
+        <!-- HERO SECTION START -->
+        <section class="hero" aria-labelledby="hero-title">
+            <h1 id="hero-title">
+                <span aria-hidden="true" style="font-size:2.2rem;vertical-align:middle;">🎬</span> CineStream
+            </h1>
+            <p class="hero-subheading">Find where your favorite movies and shows are streaming.<br>Search, discover, and
+                build your watchlist—all in one place.</p>
+            <form id="search-form" role="search" class="hero-search">
                 <label for="search-input" class="sr-only">Search for a movie or TV show</label>
                 <input type="text" id="search-input" placeholder="e.g., Inception, The Bear..." required
                     aria-label="Movie or TV show title">
-
                 <div class="filters">
                     <label for="type-filter" class="sr-only">Type</label>
                     <select id="type-filter" aria-label="Filter by type">
@@ -78,14 +70,13 @@
                     <input type="text" id="year-filter" placeholder="Year (e.g., 2023)" pattern="[0-9]{4}"
                         aria-label="Filter by year">
                 </div>
-
                 <button type="submit">Search</button>
             </form>
-
-            <div class="surprise-container">
+            <div class="hero-surprise">
                 <button id="surprise-btn" class="action-btn">🎉 Surprise Me! 🎉</button>
             </div>
         </section>
+        <!-- HERO SECTION END -->
 
         <section id="featured-section" aria-labelledby="featured-heading">
             <h2 id="featured-heading">Discover Popular Titles</h2>
