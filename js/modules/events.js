@@ -114,6 +114,12 @@ async function handleSearch(event) {
     state.lastSearchYear = validation.data.year;
 
     await performSearch(validation.data.searchTerm, validation.data.type, validation.data.year, 1);
+
+    // Scroll to results section after rendering
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 /**
