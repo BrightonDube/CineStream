@@ -67,6 +67,7 @@ function displayErrors(errors, container) {
  * @param {string} type - The search type filter.
  * @param {string} year - The search year filter.
  * @param {number} page - The page number.
+ * @returns {Promise<void>}
  */
 async function performSearch(term, type, year, page) {
     toggleLoader(true);
@@ -86,8 +87,9 @@ async function performSearch(term, type, year, page) {
 }
 
 /**
- * Handles the search form submission with validation.
+ * Handles the search form submission and displays results.
  * @param {Event} event - The form submission event.
+ * @returns {Promise<void>}
  */
 async function handleSearch(event) {
     event.preventDefault();
@@ -115,32 +117,20 @@ async function handleSearch(event) {
 }
 
 /**
- * Handles the "Surprise Me" button click.
- * Picks a random movie from the list and ensures a valid result.
+ * Handles the "Surprise Me" button click to show a random movie.
+ * @param {Event} event - The click event.
+ * @returns {Promise<void>}
  */
-async function handleSurprise() {
+async function handleSurprise(event) {
+    event.preventDefault();
     toggleLoader(true);
-    resultsContainer.innerHTML = '<h2>Your Surprise Movie</h2>';
-
-    // Shuffle the surpriseMovieIds array
-    const shuffled = [...surpriseMovieIds].sort(() => 0.5 - Math.random());
-    let movie = null;
-    for (let i = 0; i < shuffled.length; i++) {
-        movie = await getMovieById(shuffled[i]);
-        if (movie) break;
-    }
-
+    
+    const randomId = surpriseMovieIds[Math.floor(Math.random() * surpriseMovieIds.length)];
+    const movie = await getMovieById(randomId);
+    
     toggleLoader(false);
     if (movie) {
-        renderMovies([movie], resultsContainer, false);
-    } else {
-        resultsContainer.innerHTML += '<p>Could not find a surprise movie. Please try again!</p>';
-    }
-
-    // Scroll to the results section
-    const resultsSection = document.getElementById('results-section');
-    if (resultsSection) {
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        showMovieDetails(movie);
     }
 }
 
@@ -223,103 +213,78 @@ function handleContactSubmit(event) {
 
 /**
  * Shows movie details in a modal.
- * @param {string} imdbId - The IMDb ID of the movie.
+ * @param {Object} movie - The movie object to display.
+ * @returns {Promise<void>}
  */
-async function showMovieDetails(imdbId) {
-    toggleLoader(true);
-    const movie = await getMovieById(imdbId);
-    const sources = await getStreamingSources(imdbId);
-    toggleLoader(false);
-
-    if (!movie) {
-        alert('Could not load movie details. Please try again.');
-        return;
-    }
-
+async function showMovieDetails(movie) {
+    const modal = document.getElementById('movie-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    
+    // Get streaming sources
+    const sources = await getStreamingSources(movie.imdbID);
+    
+    // Check if movie is in watchlist
+    const watchlist = getWatchlist();
+    const isInWatchlist = watchlist.some(item => item.imdbID === movie.imdbID);
+    
     // Update modal content
-    const modalTitle = movieModal.querySelector('#movie-modal-title');
-    const modalImg = movieModal.querySelector('.movie-modal-img');
-    const yearEl = movieModal.querySelector('.movie-year');
-    const ratingEl = movieModal.querySelector('.movie-rating');
-    const runtimeEl = movieModal.querySelector('.movie-runtime');
-    const genreEl = movieModal.querySelector('.movie-genre');
-    const plotEl = movieModal.querySelector('.movie-plot');
-    const sourcesEl = movieModal.querySelector('.streaming-sources');
-    const watchlistBtn = movieModal.querySelector('.add-to-watchlist-btn');
-
-    modalTitle.textContent = movie.Title;
-    modalImg.src = movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster';
-    modalImg.alt = `Poster for ${movie.Title}`;
-    yearEl.textContent = `Year: ${movie.Year}`;
-    ratingEl.textContent = `IMDb Rating: ${movie.imdbRating || 'N/A'}`;
-    runtimeEl.textContent = `Runtime: ${movie.Runtime || 'N/A'}`;
-    genreEl.textContent = `Genre: ${movie.Genre || 'N/A'}`;
-    plotEl.textContent = movie.Plot || 'No plot available.';
-
-    // Update streaming sources
-    sourcesEl.innerHTML = '';
-    if (sources && sources.length > 0) {
-        sources.forEach(source => {
-            const link = document.createElement('a');
-            link.href = source.web_url;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.textContent = source.name;
-            sourcesEl.appendChild(link);
-        });
-    } else {
-        sourcesEl.innerHTML = '<p>No streaming sources found.</p>';
-    }
-
-    // Update watchlist button
-    const isInWatchlist = getWatchlist().some(m => m.imdbID === imdbId);
-    if (isInWatchlist) {
-        watchlistBtn.textContent = '';
-        watchlistBtn.className = 'remove-from-watchlist-btn';
-        const icon = document.createElement('span');
-        icon.className = 'icon-trash';
-        icon.innerHTML = '🗑️';
-        watchlistBtn.appendChild(icon);
-        watchlistBtn.appendChild(document.createTextNode('Remove from Watchlist'));
-    } else {
-        watchlistBtn.textContent = '';
-        watchlistBtn.className = 'add-to-watchlist-btn';
-        const icon = document.createElement('span');
-        icon.className = 'icon-plus';
-        icon.innerHTML = '➕';
-        watchlistBtn.appendChild(icon);
-        watchlistBtn.appendChild(document.createTextNode('Add to Watchlist'));
-    }
-    watchlistBtn.onclick = () => {
-        if (isInWatchlist) {
-            removeMovieFromWatchlist(imdbId);
-        } else {
-            addMovieToWatchlist({
-                imdbID: imdbId,
-                Title: movie.Title,
-                Year: movie.Year,
-                Poster: movie.Poster
-            });
-        }
-        refreshWatchlistUI();
-        hideModal(movieModal);
-    };
-
-    showModal(movieModal);
+    modalContent.innerHTML = `
+        <button class="modal-close-btn" aria-label="Close modal">&times;</button>
+        <div class="movie-modal-content">
+            <img src="${movie.Poster !== 'N/A' ? movie.Poster : 'images/no-poster.jpg'}" 
+                 alt="${movie.Title} poster" 
+                 class="movie-modal-poster">
+            <div class="movie-modal-info">
+                <h2>${movie.Title}</h2>
+                <p><strong>Year:</strong> ${movie.Year}</p>
+                <p><strong>Type:</strong> ${movie.Type}</p>
+                <p><strong>IMDb ID:</strong> ${movie.imdbID}</p>
+                ${sources ? `
+                    <div class="movie-modal-streaming">
+                        <h3>Available On:</h3>
+                        <div class="streaming-sources">
+                            ${sources.map(source => `
+                                <a href="${source.web_url}" target="_blank" rel="noopener noreferrer">
+                                    ${source.name}
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                <button class="action-btn ${isInWatchlist ? 'remove-from-watchlist-btn' : 'add-to-watchlist-btn'}"
+                        data-imdb-id="${movie.imdbID}">
+                    ${isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Show modal
+    modal.classList.add('active');
+    
+    // Add event listener for close button
+    const closeBtn = modalContent.querySelector('.modal-close-btn');
+    closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
 }
 
 /**
- * Handles clicks on movie cards in the results and watchlist containers.
+ * Handles clicks on movie cards to show details.
  * @param {Event} event - The click event.
+ * @returns {Promise<void>}
  */
-function handleContainerClick(event) {
-    const card = event.target.closest('.movie-card');
-    if (!card) return;
-
-    const imdbId = card.dataset.imdbId;
+async function handleContainerClick(event) {
+    const movieCard = event.target.closest('.movie-card');
+    if (!movieCard) return;
+    
+    const imdbId = movieCard.dataset.imdbId;
     if (!imdbId) return;
-
-    showMovieDetails(imdbId);
+    
+    const movie = await getMovieById(imdbId);
+    if (movie) {
+        showMovieDetails(movie);
+    }
 }
 
 /**
@@ -357,6 +322,7 @@ function handleNavigation(event) {
 /**
  * Handles genre button clicks.
  * @param {Event} event - The click event.
+ * @returns {Promise<void>}
  */
 function handleGenreClick(event) {
     if (!event.target.matches('.genre-btn')) return;
@@ -374,6 +340,7 @@ function handleGenreClick(event) {
 /**
  * Handles pagination button clicks.
  * @param {Event} event - The click event.
+ * @returns {Promise<void>}
  */
 async function handlePaginationClick(event) {
     const targetId = event.target.id;
@@ -397,7 +364,7 @@ function populateGenres() {
 }
 
 /**
- * Initializes all necessary event listeners for the application.
+ * Initializes all event listeners for the application.
  */
 function initEventListeners() {
     searchForm.addEventListener('submit', handleSearch);
@@ -422,20 +389,10 @@ function initEventListeners() {
         });
     });
 
-    // Close modal when clicking overlay
     modalOverlay.addEventListener('click', () => {
         document.querySelectorAll('.modal.active').forEach(modal => {
             hideModal(modal);
         });
-    });
-
-    // Close modal with Escape key
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-            document.querySelectorAll('.modal.active').forEach(modal => {
-                hideModal(modal);
-            });
-        }
     });
 }
 
