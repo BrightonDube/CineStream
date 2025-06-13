@@ -4,6 +4,8 @@ const resultsContainer = document.getElementById('results-container');
 const watchlistContainer = document.getElementById('watchlist-container');
 const loader = document.getElementById('loader');
 const featuredContainer = document.getElementById('featured-container');
+const genreContainer = document.getElementById('genre-container');
+const paginationContainer = document.getElementById('pagination-container');
 
 /**
  * Creates a movie card element with lazy loading for the poster.
@@ -103,4 +105,36 @@ function toggleLoader(show) {
     }
 }
 
-export { renderMovies, toggleLoader, resultsContainer, watchlistContainer, featuredContainer }; 
+/**
+ * Renders pagination controls.
+ * @param {number} currentPage - The current page number.
+ * @param {number} totalResults - The total number of results available.
+ */
+function renderPagination(currentPage, totalResults) {
+    paginationContainer.innerHTML = ''; // Clear old buttons
+    const totalPages = Math.ceil(totalResults / 10);
+
+    if (totalPages <= 1) return; // Don't render if there's only one page
+
+    let paginationHTML = '';
+    // Previous Button
+    paginationHTML += `<button class="pagination-btn" id="prev-btn" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`;
+    // Page Info
+    paginationHTML += `<span id="page-info">Page ${currentPage} of ${totalPages}</span>`;
+    // Next Button
+    paginationHTML += `<button class="pagination-btn" id="next-btn" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>`;
+    
+    paginationContainer.innerHTML = paginationHTML;
+}
+
+// Export the new elements and functions
+export { 
+    renderMovies, 
+    toggleLoader, 
+    resultsContainer, 
+    watchlistContainer, 
+    featuredContainer,
+    genreContainer,
+    paginationContainer,
+    renderPagination
+}; 

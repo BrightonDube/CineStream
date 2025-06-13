@@ -1,4 +1,4 @@
-import { initEventListeners, refreshWatchlistUI, loadFeaturedMovies } from './modules/events.js';
+import { initEventListeners, refreshWatchlistUI, loadFeaturedMovies, populateGenres } from './modules/events.js';
 import { initLayout } from './modules/layout.js';
 
 /**
@@ -10,6 +10,7 @@ function main() {
     refreshWatchlistUI();
     loadFeaturedMovies();
     initLayout();
+    populateGenres();
 }
 
 // Initialize the app when the DOM is fully loaded

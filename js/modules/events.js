@@ -1,5 +1,14 @@
 import { searchOMDb, getStreamingSources, getMovieById } from './api.js';
-import { renderMovies, toggleLoader, resultsContainer, watchlistContainer, featuredContainer } from './ui.js';
+import { 
+    renderMovies, 
+    toggleLoader, 
+    resultsContainer, 
+    watchlistContainer, 
+    featuredContainer,
+    genreContainer,
+    paginationContainer,
+    renderPagination 
+} from './ui.js';
 import { getWatchlist, addMovieToWatchlist, removeMovieFromWatchlist } from './storage.js';
 import { validateSearchForm, validateContactForm } from './form-utils.js';
 
@@ -14,6 +23,24 @@ const modalOverlay = document.querySelector('.modal-overlay');
 // A pre-defined list of high-quality movie IMDb IDs for new features
 const featuredMovieIds = ['tt0111161', 'tt0068646', 'tt0468569', 'tt0108052', 'tt1375666', 'tt0137523'];
 const surpriseMovieIds = ['tt0110912', 'tt0167260', 'tt0133093', 'tt0080684', 'tt6751668', 'tt0076759', 'tt0109830', 'tt0050083'];
+
+// Add state management object
+const state = {
+    currentPage: 1,
+    lastSearchTerm: '',
+    lastSearchType: '',
+    lastSearchYear: '',
+    totalResults: 0,
+};
+
+// Add genre list
+const genres = [
+    { name: 'Action', term: 'action' },
+    { name: 'Comedy', term: 'comedy' },
+    { name: 'Sci-Fi', term: 'sci-fi' },
+    { name: 'Horror', term: 'horror' },
+    { name: 'Romance', term: 'romance' }
+];
 
 /**
  * Displays form validation errors to the user.
@@ -32,6 +59,30 @@ function displayErrors(errors, container) {
     }
     
     container.insertBefore(errorContainer, container.firstChild);
+}
+
+/**
+ * Performs a search and updates the UI and state.
+ * @param {string} term - The search term.
+ * @param {string} type - The search type filter.
+ * @param {string} year - The search year filter.
+ * @param {number} page - The page number.
+ */
+async function performSearch(term, type, year, page) {
+    toggleLoader(true);
+    resultsContainer.innerHTML = '';
+    
+    const response = await searchOMDb(term, type, year, page);
+    
+    toggleLoader(false);
+    if (response) {
+        renderMovies(response.Search, resultsContainer, false);
+        renderPagination(state.currentPage, response.totalResults);
+        state.totalResults = response.totalResults;
+    } else {
+        renderMovies(null, resultsContainer, false);
+        renderPagination(0, 0); // Clear pagination
+    }
 }
 
 /**
@@ -54,23 +105,13 @@ async function handleSearch(event) {
         return;
     }
 
-    toggleLoader(true);
-    resultsContainer.innerHTML = '<h2>Search Results</h2>';
+    // Update state for pagination
+    state.currentPage = 1;
+    state.lastSearchTerm = validation.data.searchTerm;
+    state.lastSearchType = validation.data.type;
+    state.lastSearchYear = validation.data.year;
 
-    const movies = await searchOMDb(
-        validation.data.searchTerm,
-        validation.data.type,
-        validation.data.year
-    );
-    
-    toggleLoader(false);
-    renderMovies(movies, resultsContainer, false);
-
-    // Scroll to the results section
-    const resultsSection = document.getElementById('results-section');
-    if (resultsSection) {
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    await performSearch(validation.data.searchTerm, validation.data.type, validation.data.year, 1);
 }
 
 /**
@@ -314,6 +355,48 @@ function handleNavigation(event) {
 }
 
 /**
+ * Handles genre button clicks.
+ * @param {Event} event - The click event.
+ */
+function handleGenreClick(event) {
+    if (!event.target.matches('.genre-btn')) return;
+    const searchTerm = event.target.dataset.term;
+    
+    // Reset state and perform a search for the genre term
+    state.currentPage = 1;
+    state.lastSearchTerm = searchTerm;
+    state.lastSearchType = 'movie'; // Default to movie for genre searches
+    state.lastSearchYear = '';
+
+    performSearch(searchTerm, 'movie', '', 1);
+}
+
+/**
+ * Handles pagination button clicks.
+ * @param {Event} event - The click event.
+ */
+async function handlePaginationClick(event) {
+    const targetId = event.target.id;
+    if (targetId === 'next-btn') {
+        state.currentPage++;
+    } else if (targetId === 'prev-btn') {
+        state.currentPage--;
+    } else {
+        return; // Exit if not a pagination button
+    }
+    await performSearch(state.lastSearchTerm, state.lastSearchType, state.lastSearchYear, state.currentPage);
+}
+
+/**
+ * Populates the genre buttons in the UI.
+ */
+function populateGenres() {
+    genreContainer.innerHTML = genres.map(genre => 
+        `<button class="genre-btn" data-term="${genre.term}">${genre.name}</button>`
+    ).join('');
+}
+
+/**
  * Initializes all necessary event listeners for the application.
  */
 function initEventListeners() {
@@ -323,6 +406,8 @@ function initEventListeners() {
     resultsContainer.addEventListener('click', handleContainerClick);
     watchlistContainer.addEventListener('click', handleContainerClick);
     featuredContainer.addEventListener('click', handleContainerClick);
+    genreContainer.addEventListener('click', handleGenreClick);
+    paginationContainer.addEventListener('click', handlePaginationClick);
     
     // Add navigation event listeners
     navLinks.forEach(link => {
@@ -354,4 +439,4 @@ function initEventListeners() {
     });
 }
 
-export { initEventListeners, refreshWatchlistUI, loadFeaturedMovies }; 
+export { initEventListeners, refreshWatchlistUI, loadFeaturedMovies, populateGenres }; 

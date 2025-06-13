@@ -3,27 +3,24 @@ const OMDb_API_KEY = 'b02ef26f';
 const WATCHMODE_API_KEY = '5QUiaWeDU2cPgQs6LF7S8uSmYkSaHvhPCeoGoebi'; // Add your Watchmode API key here
 
 /**
- * Searches the OMDb API for movies. NOW WITH FILTERS.
+ * Searches the OMDb API for movies. NOW WITH FILTERS AND PAGINATION.
  * @param {string} searchTerm - The title of the movie to search for.
- * @param {string} type - The type to filter by (e.g., 'movie', 'series').
+ * @param {string} type - The type to filter by.
  * @param {string} year - The year to filter by.
- * @returns {Promise<Array|null>} A promise that resolves to an array of movie results or null.
+ * @param {number} page - The page number of results to retrieve.
+ * @returns {Promise<object|null>} A promise that resolves to the API response object (with Search and totalResults) or null.
  */
-async function searchOMDb(searchTerm, type = '', year = '') {
-    // MODIFIED: Append type and year to the URL if they exist
-    let url = `https://www.omdbapi.com/?s=${encodeURIComponent(searchTerm)}&apikey=${OMDb_API_KEY}`;
-    if (type) {
-        url += `&type=${type}`;
-    }
-    if (year) {
-        url += `&y=${year}`;
-    }
+async function searchOMDb(searchTerm, type = '', year = '', page = 1) {
+    let url = `https://www.omdbapi.com/?s=${encodeURIComponent(searchTerm)}&apikey=${OMDb_API_KEY}&page=${page}`;
+    if (type) url += `&type=${type}`;
+    if (year) url += `&y=${year}`;
 
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`OMDb API request failed: ${response.status}`);
         const data = await response.json();
-        return data.Response === "True" ? data.Search : null;
+        // Return the whole object now, not just data.Search
+        return data.Response === "True" ? data : null;
     } catch (error) {
         console.error("Error fetching from OMDb:", error);
         return null;
