@@ -241,8 +241,13 @@ async function showMovieDetails(imdbId) {
         watchlistBtn.appendChild(icon);
         watchlistBtn.appendChild(document.createTextNode('Remove from Watchlist'));
     } else {
-        watchlistBtn.textContent = 'Add to Watchlist';
+        watchlistBtn.textContent = '';
         watchlistBtn.className = 'add-to-watchlist-btn';
+        const icon = document.createElement('span');
+        icon.className = 'icon-plus';
+        icon.innerHTML = '➕';
+        watchlistBtn.appendChild(icon);
+        watchlistBtn.appendChild(document.createTextNode('Add to Watchlist'));
     }
     watchlistBtn.onclick = () => {
         if (isInWatchlist) {
