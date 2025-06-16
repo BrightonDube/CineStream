@@ -1,6 +1,5 @@
-// IMPORTANT: Replace placeholders with your actual API keys
 const OMDb_API_KEY = 'b02ef26f';
-const WATCHMODE_API_KEY = '5QUiaWeDU2cPgQs6LF7S8uSmYkSaHvhPCeoGoebi'; // Add your Watchmode API key here
+const WATCHMODE_API_KEY = '5QUiaWeDU2cPgQs6LF7S8uSmYkSaHvhPCeoGoebi'; 
 
 /**
  * Searches the OMDb API for movies. NOW WITH FILTERS AND PAGINATION.
@@ -19,7 +18,6 @@ async function searchOMDb(searchTerm, type = '', year = '', page = 1) {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`OMDb API request failed: ${response.status}`);
         const data = await response.json();
-        // Return the whole object now, not just data.Search
         return data.Response === "True" ? data : null;
     } catch (error) {
         console.error("Error fetching from OMDb:", error);
@@ -46,7 +44,6 @@ async function getStreamingSources(imdbId) {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Watchmode API request failed with status: ${response.status}`);
         const data = await response.json();
-        // Filter for unique subscription-based services only
         const uniqueSources = data.filter((source, index, self) => 
             source.type === 'sub' && self.findIndex(s => s.source_id === source.source_id) === index
         );

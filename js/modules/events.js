@@ -20,7 +20,6 @@ const contactModal = document.getElementById('contact-modal');
 const movieModal = document.getElementById('movie-modal');
 const modalOverlay = document.querySelector('.modal-overlay');
 
-// A pre-defined list of high-quality movie IMDb IDs for new features
 const featuredMovieIds = ['tt0111161', 'tt0068646', 'tt0468569', 'tt0108052', 'tt1375666', 'tt0137523'];
 const surpriseMovieIds = ['tt0110912', 'tt0167260', 'tt0133093', 'tt0080684', 'tt6751668', 'tt0076759', 'tt0109830', 'tt0050083'];
 
@@ -52,7 +51,6 @@ function displayErrors(errors, container) {
     errorContainer.className = 'error-messages';
     errorContainer.innerHTML = errors.map(error => `<p class="error">${error}</p>`).join('');
     
-    // Remove any existing error messages
     const existingErrors = container.querySelector('.error-messages');
     if (existingErrors) {
         existingErrors.remove();
@@ -107,7 +105,7 @@ async function handleSearch(event) {
         return;
     }
 
-    // Update state for pagination
+   
     state.currentPage = 1;
     state.lastSearchTerm = validation.data.searchTerm;
     state.lastSearchType = validation.data.type;
@@ -115,7 +113,6 @@ async function handleSearch(event) {
 
     await performSearch(validation.data.searchTerm, validation.data.type, validation.data.year, 1);
 
-    // Scroll to results section after rendering
     const resultsSection = document.getElementById('results-section');
     if (resultsSection) {
         resultsSection.scrollIntoView({ behavior: 'smooth' });
@@ -140,9 +137,9 @@ async function handleSurprise(event) {
     }
 }
 
-/**
- * Loads and displays featured movies.
- */
+
+ // Loads and displays featured movies.
+
 async function loadFeaturedMovies() {
     const featuredContainer = document.getElementById('featured-container');
     if (!featuredContainer) return;
@@ -167,9 +164,7 @@ async function loadFeaturedMovies() {
     }
 }
 
-/**
- * Refreshes the watchlist UI with current data.
- */
+
 function refreshWatchlistUI() {
     const watchlist = getWatchlist();
     renderMovies(watchlist, watchlistContainer, true);
@@ -212,14 +207,13 @@ function handleContactSubmit(event) {
         return;
     }
 
-    // Here you would typically send the sanitized data to a server
     showModal(contactModal);
     event.target.reset();
 }
 
 /**
  * Shows movie details in a modal.
- * @param {Object} movie - The movie object to display.
+ * @param {Object} movie 
  * @returns {Promise<void>}
  */
 async function showMovieDetails(movie) {
@@ -265,13 +259,30 @@ async function showMovieDetails(movie) {
         </div>
     `;
     
-    // Show modal
+   
     modal.classList.add('active');
     
-    // Add event listener for close button
     const closeBtn = modalContent.querySelector('.modal-close-btn');
     closeBtn.addEventListener('click', () => {
         modal.classList.remove('active');
+    });
+
+    // Add event listener for add/remove watchlist button
+    const watchlistBtn = modalContent.querySelector('.action-btn');
+    watchlistBtn.addEventListener('click', () => {
+        const imdbID = movie.imdbID;
+        if (watchlistBtn.classList.contains('add-to-watchlist-btn')) {
+            addMovieToWatchlist(movie);
+            watchlistBtn.textContent = 'Remove from Watchlist';
+            watchlistBtn.classList.remove('add-to-watchlist-btn');
+            watchlistBtn.classList.add('remove-from-watchlist-btn');
+        } else {
+            removeMovieFromWatchlist(imdbID);
+            watchlistBtn.textContent = 'Add to Watchlist';
+            watchlistBtn.classList.remove('remove-from-watchlist-btn');
+            watchlistBtn.classList.add('add-to-watchlist-btn');
+        }
+        refreshWatchlistUI();
     });
 }
 
@@ -301,13 +312,12 @@ function handleNavigation(event) {
     const link = event.target.closest('.nav-link');
     if (!link) return;
 
-    const targetId = link.getAttribute('href').substring(1); // Remove the # from href
+    const targetId = link.getAttribute('href').substring(1); 
     const targetSection = document.getElementById(targetId);
     
     if (targetSection) {
         event.preventDefault();
-        
-        // Close mobile menu if open
+       
         const hamburger = document.querySelector('.hamburger');
         const navbarMenu = document.querySelector('.navbar-menu');
         if (hamburger && navbarMenu) {
@@ -316,10 +326,8 @@ function handleNavigation(event) {
             hamburger.setAttribute('aria-expanded', 'false');
         }
 
-        // Scroll to section with smooth behavior
         targetSection.scrollIntoView({ behavior: 'smooth' });
 
-        // Update active state of nav links
         navLinks.forEach(navLink => navLink.classList.remove('active'));
         link.classList.add('active');
     }
@@ -334,10 +342,9 @@ function handleGenreClick(event) {
     if (!event.target.matches('.genre-btn')) return;
     const searchTerm = event.target.dataset.term;
     
-    // Reset state and perform a search for the genre term
     state.currentPage = 1;
     state.lastSearchTerm = searchTerm;
-    state.lastSearchType = 'movie'; // Default to movie for genre searches
+    state.lastSearchType = 'movie'; 
     state.lastSearchYear = '';
 
     performSearch(searchTerm, 'movie', '', 1);
@@ -355,23 +362,20 @@ async function handlePaginationClick(event) {
     } else if (targetId === 'prev-btn') {
         state.currentPage--;
     } else {
-        return; // Exit if not a pagination button
+        return; 
     }
     await performSearch(state.lastSearchTerm, state.lastSearchType, state.lastSearchYear, state.currentPage);
 }
 
-/**
- * Populates the genre buttons in the UI.
- */
+
 function populateGenres() {
     genreContainer.innerHTML = genres.map(genre => 
         `<button class="genre-btn" data-term="${genre.term}">${genre.name}</button>`
     ).join('');
 }
 
-/**
- * Initializes all event listeners for the application.
- */
+//Initializes all event listeners for the application.
+
 function initEventListeners() {
     searchForm.addEventListener('submit', handleSearch);
     surpriseBtn.addEventListener('click', handleSurprise);
@@ -402,4 +406,4 @@ function initEventListeners() {
     });
 }
 
-export { initEventListeners, refreshWatchlistUI, loadFeaturedMovies, populateGenres }; 
+export { initEventListeners, refreshWatchlistUI, loadFeaturedMovies, populateGenres };
