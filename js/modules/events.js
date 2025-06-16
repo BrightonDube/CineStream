@@ -239,6 +239,11 @@ async function showMovieDetails(movie) {
                 <p><strong>Year:</strong> ${movie.Year}</p>
                 <p><strong>Type:</strong> ${movie.Type}</p>
                 <p><strong>IMDb ID:</strong> ${movie.imdbID}</p>
+                <p><strong>Rated:</strong> ${movie.Rated || 'N/A'}</p>
+                <p><strong>Runtime:</strong> ${movie.Runtime || 'N/A'}</p>
+                <p><strong>Genre:</strong> ${movie.Genre || 'N/A'}</p>
+                <p><strong>Country:</strong> ${movie.Country || 'N/A'}</p>
+                <p><strong>Box Office:</strong> ${movie.BoxOffice || 'N/A'}</p>
                 ${sources ? `
                     <div class="movie-modal-streaming">
                         <h3>Available On:</h3>

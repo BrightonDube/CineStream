@@ -81,6 +81,8 @@ function updateCardWithSources(imdbId, sources) {
  * @param {boolean} isWatchlist - Whether this is the watchlist container.
  */
 function renderMovies(movies, container, isWatchlist = false) {
+    // Log the movie data (JSON)
+    console.log('renderMovies called with:', JSON.stringify(movies, null, 2));
     if (!movies || movies.length === 0) {
         container.innerHTML = '<p class="no-results">No movies found.</p>';
         return;
@@ -137,4 +139,4 @@ export {
     genreContainer,
     paginationContainer,
     renderPagination
-}; 
+};
